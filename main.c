@@ -17,6 +17,8 @@ int emp_id_func();//get employee's ID
 void emp_name_func(char emp_name[]);//get employee's name
 void label(const char*label);//label the paycheck entry
 void paycheck_entry(float entry);//dollars and cents for paycheck entry
+double paycheck_entry_perc(double net_pay, double gross_pay);//percentage for take home percentage
+char filler();
 //CONSTANTS
 //left width
 const int LWIDTH = 32;
@@ -31,7 +33,8 @@ void main() {
     //monthly pay
     float gross_pay; //user's gross pay
 //taxes & retirement - rates
-    float state_tax_rate, medicare_tax_rate, soc_sec_tax_rate, take_home_percent, retire_ded_perc;
+    float state_tax_rate, medicare_tax_rate, soc_sec_tax_rate, retire_ded_perc;
+    double take_home_percent;
     float fed_tax_rate;
 //taxes & retirement - totals
     float fed_tax, state_tax, medicare_tax, soc_sec_tax, retire_ded;
@@ -46,10 +49,7 @@ void main() {
 
     emp_id = emp_id_func();
     emp_name_func(emp_name);
-
     gross_pay = gross_pay_func(emp_name);
-
-
 
 
     //tax rates
@@ -75,14 +75,15 @@ void main() {
 //calculations
     sum_deductions = fed_tax + state_tax + medicare_tax + soc_sec_tax + retire_ded + life_ins_amt + health_ins_amt;
     net_pay = gross_pay - sum_deductions;
-    take_home_percent = net_pay / gross_pay * 100;
+
 
 
     //DISPLAY
 
-    printf("Paycheck for %s, employeeID%d\n", emp_name, emp_id);
+    printf("Paycheck for %s, employeeID %d\n", emp_name, emp_id);
 
     label("Gross Amount: ");
+    filler();
     paycheck_entry(gross_pay);
     printf("\nDeductions\n");
 
@@ -104,10 +105,8 @@ void main() {
 
     label("Net Pay: ");
     paycheck_entry(net_pay);
-    label("Percent take home: ");
-    printf(" %%");
-    printf("5*.2f/n", RWIDTH, take_home_percent);
-
+    label("Percent take home: ");;
+    paycheck_entry_perc(net_pay, gross_pay);
 
 }
 
@@ -145,56 +144,66 @@ printf("%-*s", LWIDTH, label);
 
 void paycheck_entry(float entry){
     printf(" $%*.2f\n", RWIDTH, entry);
-    }
+}
+
+double paycheck_entry_perc(double net_pay, double gross_pay){
+    double take_home_percent = net_pay / gross_pay;
+    printf(" %%%7.2f\n" , take_home_percent);
+}
+char filler(){
+int filler = '.'; /* setfill('#') */
+int width = 10;   /* setw(10)     */
+int target = 5;   /* 5            */
+
+/* ******** */
+int s = snprintf(NULL, 0, "%d", target);
+for (int i = 0; i < width - s; i++) {
+putchar(filler);
+}
+printf("%d\n", target);
+/* ******** */
+
+return 0;
+}
 
 
-int validation_integer(int min, int max) //function to validate integers
+int validation_integer(int min, int max) // function to validate integers
 {
-  bool valid = false;
-    int number, return_code;
+    int number;
+    int return_code;
     do {
-
         return_code = scanf("%d", &number);
-        if (return_code <= 0){
-            // Explain error not entering an integer
-            printf("I'm sorry that's not a valid entry. Please enter an integer: ");
-        printf("\n");
-    }
-        else if (number < min || number > max) {
-            // Explain error not entering out of range
+        if (return_code <= 0 || number < min || number > max) {
+            // Explain error not entering an integer or out of range
             printf("I'm sorry that's not a valid entry. Please enter a number between %d and %d: ", min, max);
-            printf("\n");
+            // Clear input stream
+            while (getchar() != '\n'); // Discard previous input
         }
-        else {
-            valid = true;
-        }
-    }while (!valid);
-
-
+    } while (return_code <= 0 || number < min || number > max);
     return number;
 }
 
 float validation_float(float min, float max)
-{ bool valid = false;
+{
+    bool valid = false;
     float number;
     int return_code;
     do {
-
         return_code = scanf("%f", &number);
-        if (return_code <= 0){
-            // Explain error not entering an integer
+        if (return_code <= 0) {
+            // Explain error not entering a float
             printf("I'm sorry that's not a valid entry. Please retry: ");
             printf("\n");
-        }
-        else if (number < min || number > max) {
+            // Clear input stream
+            while (getchar() != '\n'); // Discard previous input
+        } else if (number < min || number > max) {
             // Explain error not entering out of range
             printf("I'm sorry that's not a valid entry. Please enter a number between %f and %f: ", min, max);
             printf("\n");
-        }
-        else {
+        } else {
             valid = true;
         }
-    }while (!valid);
+    } while (!valid);
     return number;
 }
 
